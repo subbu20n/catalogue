@@ -1,6 +1,6 @@
 FROM node:20-alpine:3.21 AS Builder 
 WORKDIR /opt/server 
-COPY  package.js . 
+COPY  package.json . 
 COPY *.js . 
 RUN npm install 
 
