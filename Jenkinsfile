@@ -26,7 +26,15 @@ pipeline {
                     echo "package version: ${appVersion}"
                 }
               }
-
+        }
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    sh """
+                       npm install 
+                    """
+                }
+            }
         }
     
         
