@@ -53,7 +53,7 @@ pipeline {
         
         stage('Trigger Deploy') { 
             when {
-                expression {params.deploy_to} 
+                expression {params.deploy} 
             }
             steps {
                 script {
@@ -61,7 +61,7 @@ pipeline {
                     parameters: [
                         string(name: 'appVersion', value: "${appVersion}"),
                         string(name: 'deploy_to', value: 'dev')
-                    ]
+                    ],
                       propagate: false // even sg fails vpc will not be effected 
                       wait: false // vpc will not wait for sg pipeline completion 
                 }
