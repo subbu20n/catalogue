@@ -1,38 +1,47 @@
 pipeline {
-    agent {
+    agent  {
         label 'AGENT-1'
     }
-    environment {
+    environment { 
         appVersion = ''
-        REGION = "us-east-1" 
+        REGION = "us-east-1"
         ACC_ID = "888947293288"
         PROJECT = "roboshop"
         COMPONENT = "catalogue"
-    } 
+    }
     options {
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 30, unit: 'MINUTES') 
         disableConcurrentBuilds()
     }
-     parameters {
-        booleanParam(name: 'default', defaultValue: false, description: 'Toggle this value') 
-    } 
-    // Build 
+    parameters {
+        booleanParam(name: 'deploy', defaultValue: false, description: 'Toggle this value')
+    }
+    // Build
     stages {
         stage('Read package.json') {
-              steps {
+            steps {
                 script {
                     def packageJson = readJSON file: 'package.json'
-                    appVersion = packageJson.version 
-                    echo "package version: ${appVersion}"
+                    appVersion = packageJson.version
+                    echo "Package version: ${appVersion}"
                 }
-              }
+            }
         }
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh """
-                       npm install 
-                    """ 
+                   sh """
+                        npm install
+                   """
+                }
+            }
+        }
+        stage('Unit Testing') {
+            steps {
+                script {
+                   sh """
+                        echo "unit tests"
+                   """
                 }
             }
         }
@@ -49,36 +58,35 @@ pipeline {
                 }
             }
         }
-    
-        
-        stage('Trigger Deploy') { 
-            when {
-                expression {params.deploy} 
+        stage('Trigger Deploy') {
+            when{
+                expression { params.deploy }
             }
             steps {
                 script {
-                    build job: 'catalogue-cd' 
+                    build job: 'catalogue-cd',
                     parameters: [
                         string(name: 'appVersion', value: "${appVersion}"),
                         string(name: 'deploy_to', value: 'dev')
                     ],
-                      propagate: false // even sg fails vpc will not be effected 
-                      wait: false // vpc will not wait for sg pipeline completion 
+                    propagate: false,  // even SG fails VPC will not be effected
+                    wait: false // VPC will not wait for SG pipeline completion
                 }
             }
         }
-       
+        
     }
-    post {
-        always {
-            echo "I will always say Hello Again!"
+
+    post { 
+        always { 
+            echo 'I will always say Hello again!'
             deleteDir()
         }
-        success {
-            echo "Hello Success"
+        success { 
+            echo 'Hello Success'
         }
-        failure {
-            echo "Hello Failure"
+        failure { 
+            echo 'Hello Failure'
         }
     }
-} 
+}
