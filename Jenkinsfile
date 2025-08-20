@@ -5,7 +5,7 @@ pipeline {
     environment { 
         appVersion = ''
         REGION = "us-east-1"
-        ACC_ID = "888947293288"
+        ACC_ID = "315069654700"
         PROJECT = "roboshop"
         COMPONENT = "catalogue"
     }
@@ -42,6 +42,19 @@ pipeline {
                    sh """
                         echo "unit tests"
                    """
+                }
+            }
+        }
+        stage('Sonar Scan') {
+            environment {
+                scannerHome = tool 'sonar-7.2'
+            }
+            steps {
+                script {
+                   // Sonar Server envrionment
+                   withSonarQubeEnv(installationName: 'sonar-7.2') {
+                         sh "${scannerHome}/bin/sonar-scanner"
+                   }
                 }
             }
         }
