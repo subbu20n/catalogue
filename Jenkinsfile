@@ -19,9 +19,11 @@ pipeline {
     stages{
         stage('Read Package.json'){
             steps {
-                def packageJson = readJSON file: 'package.json'
-                appVersion = packageJson.version 
-                echo "package version: ${appVersion}"
+                script {
+                  def packageJson = readJSON file: 'package.json'
+                  appVersion = packageJson.version 
+                  echo "package version: ${appVersion}"
+                }
             }
         }
         stage('Build'){
