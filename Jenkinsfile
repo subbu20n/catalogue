@@ -39,24 +39,35 @@ pipeline {
                 }
             }
         }
-        stage('Build'){
+        stage('Docker Build'){
             steps {
                 script{
-                    sh """
-                      echo "Building"   
-                      sleep 10 
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1'){
+                      sh """
+                        aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
+                        docker build -t ${ACC-ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:appVersion . 
+                        docker push ${ACC-ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:appVersion 
                 
-                    """
+                      """
+                    }  
                 }
             }    
         }
-        stage('Test'){
+        stage('Trigger Deploy'){
+            when {
+                expression {params.deploy}
+            }
             steps {
                 script {
-                      echo "Testing"
+                    build job: 'catalogue-cd'
+                    parameters: [
+                        string(name: 'appVersion', value: "${appVersion}"),
+                        string(name: 'deploy_to', value: 'dev')
+                    ],
+                    propagate: false // even sg fails vpc will not be effected 
+                    wait: false // vpc will not wait for sg pipeline creation 
                 }
             }
-
         }
     }
     post {
