@@ -4,6 +4,10 @@ pipeline {
     } 
     environment {
         appVersion = ''
+        REGION = "us-east-1"
+        PROJECT = "roboshop"
+        ACC_ID  = "888947293288"
+        COMPONENT = "catalogue"
     } 
     options {
         timeout(time: 30, unit: 'MINUTES')
