@@ -49,7 +49,7 @@ pipeline {
                 } 
             }    
         }
-        stage('Trigger Deploy'){
+       /*  stage('Trigger Deploy'){
             when {
                 expression {params.deploy}
             }
@@ -64,7 +64,7 @@ pipeline {
                     wait: false // vpc will not wait for sg pipeline creation 
                 }
             }
-        }
+        } */
     }
     post {
         always {
