@@ -12,10 +12,10 @@ pipeline {
     options {
         timeout(time: 30, unit: 'MINUTES')
         disableConcurrentBuilds()
-    }
+    }/* 
      parameters {
         booleanParam(name: 'deploy', defaultValue: false, description: 'Toggle this value')
-     }
+     } */
     stages{
         stage('Read Package.json'){
             steps {
