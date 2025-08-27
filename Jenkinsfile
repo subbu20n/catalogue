@@ -1,6 +1,6 @@
-@Libarary('jenkins-shared-pipeline') _ 
+@Library('jenkins-shared-library') _ 
 
-def configMap = [ 
+def config = [ 
     greeting: "Hello Jenkins"
 ]
 
