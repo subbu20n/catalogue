@@ -4,4 +4,4 @@ def configMap  = [
     greeting: "Hello Jenkins"
 ]
 
-  samplePipeline(configMap) 
+  nodejsEKSPipeline(configMap) 
