@@ -3,7 +3,7 @@ pipeline {
         label 'AGENT-1'
     }
     environment {
-        course = "jenkins"
+        appVersion = ""
     }
     options {
         timeout(time:30, unit: 'MINUTES')
@@ -20,18 +20,17 @@ pipeline {
 
         password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     } */
+    // BUILD 
     stages {
-        stage ('Build') {
+        stage ('Read package.json') {
             steps {
                 script {
-                    sh """
-                      echo "Building.."
-                      sleep 10 
-                      env 
-                    """   
-                }  
+                    def packageJson = readJSON file: 'package.version' 
+                    appVersion = packageJson.version 
+                    echo "package version: ${appVersion}"
+                }
             }
-        } 
+        }
         stage ('Test') {
             steps { 
                 script {
