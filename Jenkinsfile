@@ -38,7 +38,7 @@ pipeline {
                        npm install 
                     """ 
                 }
-            }
+            } 
         }
         stage ('Test') {
             steps { 
