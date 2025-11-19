@@ -63,7 +63,7 @@ pipeline {
             steps {
                 script {
                     build job: 'catalogue-cd',
-                    parametes: [
+                    parameters: [
                         string(name: 'appVersion', value: '${appVersion}') 
                         string(name: 'deploy_to', value: 'dev')
                     ],
