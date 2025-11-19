@@ -4,6 +4,10 @@ pipeline {
     }
     environment {
         appVersion = ""
+        AAC_ID = "888947293288" 
+        REGION = "us-east-1" 
+        PROJECT = "roboshop" 
+        COMPONENT = "catalogue"
     }
     options {
         timeout(time:30, unit: 'MINUTES')
@@ -38,7 +42,18 @@ pipeline {
                        npm install 
                     """ 
                 }
-            } 
+            }  
+        }
+        stage ('Docker Build') {
+            steps {
+                script {
+                    withAWS(credentials: 'aws-creds',region: 'us-east-1') {
+                        aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
+                        docker build -t  ${REGION}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion} . 
+                        docker push ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion}
+                    }
+                }
+            }
         }
         stage ('Test') {
             steps { 
@@ -52,7 +67,7 @@ pipeline {
     post {
         always {
             echo "I will say hello again!" 
-            /* deleteDir() */
+            deleteDir() 
         }
         success {
             echo "Hello Success"
