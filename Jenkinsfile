@@ -1,71 +1,70 @@
 pipeline {
-    agent  {
+    agent {
         label 'AGENT-1'
     }
-    environment { 
-        appVersion = ''
-        REGION = "us-east-1"
-        ACC_ID = "888947293288"
-        PROJECT = "roboshop"
+    environment {
+        appVersion = ""
+        ACC_ID = "888947293288" 
+        REGION = "us-east-1" 
+        PROJECT = "roboshop" 
         COMPONENT = "catalogue"
     }
     options {
-        timeout(time: 30, unit: 'MINUTES') 
+        timeout(time:30, unit: 'MINUTES')
         disableConcurrentBuilds()
     }
     parameters {
         booleanParam(name: 'deploy', defaultValue: false, description: 'Toggle this value')
-    }
-    // Build
+    } 
+    // BUILD 
     stages {
-        stage('Read package.json') {
+        stage ('Read package.json') {
             steps {
                 script {
-                    def packageJson = readJSON file: 'package.json'
-                    appVersion = packageJson.version
-                    echo "Package version: ${appVersion}"
+                    def packageJson = readJSON file: 'package.json' 
+                    appVersion = packageJson.version 
+                    echo "Package version: ${appVersion}" 
                 }
             }
         }
-        stage('Install Dependencies') {
+        stage ('Install dependencies') {
             steps {
                 script {
-                   sh """
-                        npm install
-                   """
+                    sh """
+                       npm install 
+                    """ 
                 }
-            }
+            }  
         }
-        stage('Unit Testing') {
-            steps {
+        stage ('Test') {
+            steps { 
                 script {
-                   sh """
-                        echo "unit tests"
-                   """
-                }
+                  echo "Testing.."
+                } 
             }
         }
-        /* stage('Sonar Scan') {
+        stage ('Sonar Scan') {
             environment {
                 scannerHome = tool 'sonar-7.2'
             }
             steps {
                 script {
-                   // Sonar Server envrionment
-                   withSonarQubeEnv(installationName: 'sonar-7.2') {
-                         sh "${scannerHome}/bin/sonar-scanner"
-                   }
+                    // sonar scanner environment 
+                    withSonarQubeENV(installationName: 'sonar-7.2') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+        // Enable webhook in sonarqube server and wait for results 
+      /*  stage ('Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true 
                 }
             }
         } */
-        // Enable webhook in sonarqube server and wait for results
-        /* stage("Quality Gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                waitForQualityGate abortPipeline: true }
-            }
-        } */
-        stage('Check Dependabot Alerts') {
+         stage('Check Dependabot Alerts') {
             environment { 
                 GITHUB_TOKEN = credentials('github-token')
             }
@@ -76,12 +75,12 @@ pipeline {
                         script: """
                             curl -s -H "Accept: application/vnd.github+json" \
                                  -H "Authorization: token $GITHUB_TOKEN" \
-                                 https://api.github.com/repos/daws-84s/catalogue/dependabot/alerts
+                                 https://api.github.com/repos/subbu20n/catalogue/dependabot/alerts
                         """,
                         returnStdout: true
-                    ).trim()
+                    ).trim() 
 
-                    // Parse JSON
+                    // Parse JSON 
                     def json = readJSON text: response
 
                     // Filter alerts by severity
@@ -90,7 +89,7 @@ pipeline {
                         def state = alert?.state?.toLowerCase()
                         return (state == "open" && (severity == "critical" || severity == "high"))
                     }
-
+ 
                     if (criticalOrHigh.size() > 0) {
                         error "❌ Found ${criticalOrHigh.size()} HIGH/CRITICAL Dependabot alerts. Failing pipeline!"
                     } else {
@@ -99,15 +98,15 @@ pipeline {
                 }
             }
         }
-        stage('Docker Build') {
+        stage ('Docker Build') {
             steps {
                 script {
-                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh """
-                            aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
-                            docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion} .
-                            docker push ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion}
-                        """
+                    withAWS(credentials: 'aws-creds',  region: 'us-east-1') {
+                       sh """  
+                          aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
+                          docker build -t  ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion} . 
+                          docker push ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion}
+                       """    
                     }
                 }
             }
@@ -146,35 +145,34 @@ pipeline {
                 }
             }
         }
-        stage('Trigger Deploy') {
-            when{
-                expression { params.deploy }
+        stage ('Trigger Deploy') {
+            when {
+                expression {params.deploy}
             }
             steps {
                 script {
                     build job: 'catalogue-cd',
                     parameters: [
                         string(name: 'appVersion', value: "${appVersion}"),
-                        string(name: 'deploy_to', value: 'dev')
+                        string(name: 'deploy_to', value: 'dev') 
                     ],
-                    propagate: false,  // even SG fails VPC will not be effected
-                    wait: false // VPC will not wait for SG pipeline completion
+                    propagate: false, //even sg fails vpc will not be effected
+                    wait: false //vpc will not wait for sg pipeline completion
                 }
             }
         }
-        
-    }
-
-    post { 
-        always { 
-            echo 'I will always say Hello again!'
-            deleteDir()
+    }     
+       
+    post {
+        always {
+            echo "I will say hello again!" 
+            deleteDir() 
         }
-        success { 
-            echo 'Hello Success'
+        success {
+            echo "Hello Success"
         }
-        failure { 
-            echo 'Hello Failure'
+        failure {
+            echo "Hello Failure"
         }
     }
 }
