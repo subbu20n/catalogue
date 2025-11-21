@@ -23,7 +23,7 @@ pipeline {
                 script {
                     def packageJson = readJSON file: 'package.json' 
                     appVersion = packageJson.version 
-                    echo "Package version: ${appVersion}"
+                    echo "Package version: ${appVersion}" 
                 }
             }
         }
@@ -78,7 +78,7 @@ pipeline {
                                  https://api.github.com/repos/subbu20n/catalogue/dependabot/alerts
                         """,
                         returnStdout: true
-                    ).trim()
+                    ).trim() 
 
                     // Parse JSON 
                     def json = readJSON text: response
