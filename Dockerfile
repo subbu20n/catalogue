@@ -8,6 +8,7 @@ RUN npm install
 
 FROM node:20-alpine3.19  
 #FROM node:20-alpine3.21 
+RUN apk add --no-cache --upgrade musl openssl 
 EXPOSE 8080 
 RUN addgroup -S roboshop 
 RUN adduser -S roboshop -G roboshop 
