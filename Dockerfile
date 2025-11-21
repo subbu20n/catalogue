@@ -1,4 +1,4 @@
-FROM node:20-alpine3.19 AS builder 
+FROM node:20-alpine3.20 AS builder 
 #FROM node:20-alpine3.21 AS builder 
 WORKDIR /opt/server 
 COPY package.json .
@@ -6,7 +6,7 @@ COPY *.js .
 RUN npm install 
 
 
-FROM node:20-alpine3.19  
+FROM node:20-alpine3.20  
 #FROM node:20-alpine3.21 
 RUN apk add --no-cache --upgrade musl openssl 
 EXPOSE 8080 
