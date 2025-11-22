@@ -1,7 +1,8 @@
 @Library('jenkins-shared-library') _ 
 
 def config = [
-    greeting: "hello jenkins"
+    project = "roboshop" 
+    component = "catalogue"
 ]
 
-samplePipeline(config)
+nodejsEKSPipeline(config) //by default it will call, call function inside this pipeline 
