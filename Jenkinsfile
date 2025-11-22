@@ -1,7 +1,7 @@
 @Library('jenkins-shared-library') _ 
 
 def config = [
-    project: "roboshop" 
+    project: "roboshop",
     component: "catalogue"
 ]
 
