@@ -4,7 +4,11 @@ pipeline {
     }
 
     environment{
-        appVersion = ''
+        appVersion = '' 
+        ACC_ID = ""
+        SECRET_ID = "" 
+        REGION = 'us-east-1'
+        component = 'catalogue'
     }
 
     options{
@@ -23,10 +27,10 @@ pipeline {
             }    
         }
         stage{
-            steps{
+            steps('install depenedncies'){
                 script{
                     sh """ 
-                         echo "hello test" 
+                       npm install
                     """
                 }
 
