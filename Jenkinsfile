@@ -1,63 +1,16 @@
-pipeline {
-    agent {
-        label 'AGENT-1'
-    }
+@Library('jenkins-shared-library') _ 
 
-    environment{
-        appVersion = '' 
-        ACC_ID = ""
-        SECRET_ID = "" 
-        REGION = 'us-east-1'
-        component = 'catalogue'
-    }
+def config = [
+    project: "roboshop",
+    component: "catalogue"
+]
+if (! env.BRANCH_NAME.equalsIgnoreCase('main')) {
+      nodejsEKSPipeline(config) //by default it will call, call function inside this pipeline 
+}
+else {
+    echo "please proceed with PROD process"
+}
 
-    options{
-        timeout(time: 30, unit: 'MINUTES')
-    }
 
-    //BUILD 
-    stages {
-        stage('Read package.json'){
-            steps{
-               script{
-                def packageJson = readJSON file: 'package.json' 
-                appVersion = packageJson.version 
-                echo "package.version: ${appVersion}"
-                }
-            }    
-        }
-        stage{
-            steps('install depenedncies'){
-                script{
-                    sh """ 
-                       npm install
-                    """
-                }
-
-            }
-        }
-        stage{
-            steps('DOCKER BUILD'){
-                script{
-                    withAWS(credentials: 'aws-creds' region: 'us-east-1'){
-                        sh """ 
-                              
-
-                        """
-                    }
-                }
-            }
-        }
-    }
-    post{
-        always{
-            deleteDir{} 
-        }
-        success{
-            echo "hello success"
-        }
-        failure{
-            echo "hello failure"
-        }
-    }
-} 
+ 
+ 
