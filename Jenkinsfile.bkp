@@ -194,7 +194,7 @@ pipeline {
 
     //BUILD 
     stages {
-        stage{
+        stage('Read package.json'){
             steps{
                script{
                 def packageJson = readJSON file: 'package.json' 
@@ -226,3 +226,101 @@ pipeline {
         }
     }
 }
+
+pipeline {
+    agent {
+        label 'Agent-1'
+    }
+
+    environment{
+        appVerson = '' 
+        component = 'catalogue' 
+        project = 'roboshop' 
+        ACC_ID = '' 
+        region = 'us-east-1'
+    }
+    options{
+        timeout(time: 30,unit: 'MINUTES') 
+        disableConcurrentBuilds() 
+        ansiColor('Xterm') 
+    }
+    parameters{
+        booleanParams(name: 'deploy',defaultValue: false, description: 'Toggle this Value') 
+    }
+    //Build 
+    stages{
+        stage('Read packagejson'){
+            steps{
+                script{
+                    def PackageJson = readJSON file: 'package.Json' 
+                    appversion = packageJson.version 
+                    echo "package version: ${appVersion}" 
+                }
+            }
+        }
+        stage('Install depenedencies'){
+            steps{
+                script{
+                    sh """ 
+                       npm install 
+                    """
+                }
+            }
+        }
+        stage('Unit test cases'){
+            steps{
+                script{
+                    sh """ 
+                       echo "unit test cases"  
+                    """ 
+                }
+            }
+        } 
+        stage('sonar scan'){
+            environment {
+                scannerHome = tool 'sonar-7.2' 
+            }
+            steps{
+                script{
+                    // sonar server environemnt  
+                    withSonarQubeENV(installationName: 'sonar-7.2'){
+                        sh"${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+        // Wait form Quality Gates  
+        stage('Quality Gate'){
+            steps{
+                timeout(time: 1 , unit: Hours){
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        //Build 
+        stage('Docker build'){
+            steps{
+                script{
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1'){
+                        sh""" 
+                           
+
+                        """
+                    }
+                }
+            }
+        }
+        stage('Trigger Deploy'){
+            when {
+                expression {params.deploy} 
+            }
+            build job: 'catalogue-cd' 
+            parameters: [
+                string(name: 'appVersion', value: '${appVersion}'),
+                string(name: 'deploy-to', value: 'dev')
+            ],
+            propagate: false
+            wait: true  
+        }
+    }
+} 
