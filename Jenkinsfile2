@@ -24,8 +24,9 @@ pipeline {
                 appVersion = packageJson.version 
                 echo "package.version: ${appVersion}"
                 }
-            }    
+            }      
         }
+
         stage{
             steps('install depenedncies'){
                 script{
